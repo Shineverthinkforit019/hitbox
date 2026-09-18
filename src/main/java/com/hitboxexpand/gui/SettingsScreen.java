@@ -29,9 +29,17 @@ public class SettingsScreen extends Screen {
     private static final int TEXT_RED = 0xFF5555;
     private static final int TEXT_YELLOW = 0xFFFF55;
 
-    public SettingsScreen() {
-        super(Text.literal("EntityCulling Settings"));
-    }
+    private final Screen parent;
+
+public SettingsScreen(Screen parent) {
+    super(Text.literal("EntityCulling Settings"));
+    this.parent = parent;
+}
+
+// Thêm constructor phụ (dùng khi mở bằng keybind, không có parent)
+public SettingsScreen() {
+    this(null);
+}
 
     @Override
     protected void init() {
@@ -98,7 +106,9 @@ public class SettingsScreen extends Screen {
         // Nút Close
         addDrawableChild(ButtonWidget.builder(
                 Text.literal("§7Close"),
-                b -> close()
+                b -> {
+    if (client != null) client.setScreen(parent);
+                }
         ).dimensions(width / 2 + 5, height / 2 + 135, 105, 20).build());
     }
 
