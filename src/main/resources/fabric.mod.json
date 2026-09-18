@@ -1,12 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "perfcore",
+  "id": "entityculling",
   "version": "${version}",
-  "name": "PerfCore",
-  "description": "Advanced chunk caching and entity rendering optimizations for better FPS.",
-  "authors": ["You"],
+  "name": "EntityCulling",
+  "description": "Optimizes entity rendering by culling entities that are not visible, boosting FPS significantly.",
+  "authors": ["tr7zw"],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/entityculling",
+    "sources": "https://github.com/tr7zw/EntityCulling"
+  },
   "license": "MIT",
-  "icon": "assets/perfcore/icon.png",
+  "icon": "assets/entityculling/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": [
@@ -17,7 +21,7 @@
     ]
   },
   "mixins": [
-    "hitboxexpand.mixins.json"
+    "entityculling.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.0",
@@ -28,7 +32,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "modmenu.discord": "https://discord.gg/example"
+        "modmenu.discord": "https://discord.gg/entityculling"
       }
     }
   }
