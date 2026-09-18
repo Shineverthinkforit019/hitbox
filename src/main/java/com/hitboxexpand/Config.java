@@ -9,7 +9,7 @@ import java.nio.file.Path;
 
 public class Config {
     private static final Path PATH = FabricLoader.getInstance()
-            .getConfigDir().resolve("hitboxexpand.json");
+        .getConfigDir().resolve("entityculling.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static class Data {
