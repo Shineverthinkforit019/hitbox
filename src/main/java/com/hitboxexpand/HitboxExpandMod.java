@@ -1,9 +1,7 @@
 package com.hitboxexpand;
 
-import com.hitboxexpand.gui.SettingsScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -16,7 +14,6 @@ public class HitboxExpandMod implements ClientModInitializer {
         Config.load();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            // Đọc phím trực tiếp từ GLFW - không hiện trong Controls menu
             long handle = client.getWindow().getHandle();
             boolean pressed = GLFW.glfwGetKey(handle, Config.data.toggleKey) == GLFW.GLFW_PRESS;
 
@@ -25,7 +22,7 @@ public class HitboxExpandMod implements ClientModInitializer {
                 Config.save();
                 if (client.player != null) {
                     client.player.sendMessage(
-                        Text.literal("§7[§bPerfCore§7] §fRealtime optimizations: "
+                        Text.literal("§7[§bEntityCulling§7] §fOptimization: "
                                 + (HitboxState.enabled ? "§aENABLED" : "§cDISABLED")),
                         true
                     );
@@ -34,6 +31,6 @@ public class HitboxExpandMod implements ClientModInitializer {
             lastTogglePressed = pressed;
         });
 
-        System.out.println("[PerfCore] Loaded optimization modules for MC 1.21.4");
+        System.out.println("[EntityCulling] Loaded culling engine for MC 1.21.4");
     }
 }
