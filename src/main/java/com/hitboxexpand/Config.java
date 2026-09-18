@@ -48,3 +48,10 @@ public class Config {
         } catch (Exception e) { e.printStackTrace(); }
     }
 }
+public static class Data {
+    public boolean enabled = false;
+    public double expandMultiplier = 1.0;
+    public boolean hideOnDebug = true;
+    public int toggleKey = 75;   // K
+    public int settingsKey = 74; // J
+}
