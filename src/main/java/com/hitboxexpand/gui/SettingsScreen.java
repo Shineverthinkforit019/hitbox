@@ -6,69 +6,98 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 public class SettingsScreen extends Screen {
 
-    private int sliderX, sliderY, sliderW = 200, sliderH = 12;
+    private int sliderX, sliderY, sliderW = 220, sliderH = 12;
     private boolean dragging = false;
 
+    private boolean waitingForToggleKey = false;
+    private boolean waitingForSettingsKey = false;
+
     public SettingsScreen() {
-        super(Text.literal("HitboxExpand Settings"));
+        super(Text.literal("PerfCore Settings"));
     }
 
     @Override
     protected void init() {
         sliderX = width / 2 - sliderW / 2;
-        sliderY = height / 2 - 20;
+        sliderY = height / 2 - 40;
 
-        // Nút bật/tắt hide on debug
+        // Nút bật/tắt optimization
         addDrawableChild(ButtonWidget.builder(
-                Text.literal("HideOnDebug: " + (HitboxState.hideOnDebug ? "ON" : "OFF")),
-                b -> {
-                    HitboxState.hideOnDebug = !HitboxState.hideOnDebug;
-                    b.setMessage(Text.literal("HideOnDebug: "
-                            + (HitboxState.hideOnDebug ? "ON" : "OFF")));
-                    Config.save();
-                }
-        ).dimensions(width / 2 - 100, height / 2 + 40, 200, 20).build());
-
-        // Nút bật/tắt module
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("Enabled: " + (HitboxState.enabled ? "ON" : "OFF")),
+                Text.literal("Realtime: " + (HitboxState.enabled ? "§aON" : "§cOFF")),
                 b -> {
                     HitboxState.enabled = !HitboxState.enabled;
-                    b.setMessage(Text.literal("Enabled: "
-                            + (HitboxState.enabled ? "ON" : "OFF")));
+                    b.setMessage(Text.literal("Realtime: "
+                            + (HitboxState.enabled ? "§aON" : "§cOFF")));
                     Config.save();
                 }
-        ).dimensions(width / 2 - 100, height / 2 + 65, 200, 20).build());
+        ).dimensions(width / 2 - 110, height / 2 + 25, 220, 20).build());
 
-        // Nút đóng
+        // Toggle hideOnDebug
+        addDrawableChild(ButtonWidget.builder(
+                Text.literal("Debug-Safe: " + (HitboxState.hideOnDebug ? "§aON" : "§cOFF")),
+                b -> {
+                    HitboxState.hideOnDebug = !HitboxState.hideOnDebug;
+                    b.setMessage(Text.literal("Debug-Safe: "
+                            + (HitboxState.hideOnDebug ? "§aON" : "§cOFF")));
+                    Config.save();
+                }
+        ).dimensions(width / 2 - 110, height / 2 + 50, 220, 20).build());
+
+        // Chỉnh keybind Toggle
+        addDrawableChild(ButtonWidget.builder(
+                Text.literal("Toggle Key: §e" + keyName(Config.data.toggleKey)),
+                b -> {
+                    waitingForToggleKey = true;
+                    b.setMessage(Text.literal("§7Press a key..."));
+                }
+        ).dimensions(width / 2 - 110, height / 2 + 80, 220, 20).build());
+
+        // Chỉnh keybind Settings
+        addDrawableChild(ButtonWidget.builder(
+                Text.literal("Settings Key: §e" + keyName(Config.data.settingsKey)),
+                b -> {
+                    waitingForSettingsKey = true;
+                    b.setMessage(Text.literal("§7Press a key..."));
+                }
+        ).dimensions(width / 2 - 110, height / 2 + 105, 220, 20).build());
+
+        // Close
         addDrawableChild(ButtonWidget.builder(
                 Text.literal("Close"),
                 b -> close()
-        ).dimensions(width / 2 - 50, height / 2 + 95, 100, 20).build());
+        ).dimensions(width / 2 - 50, height / 2 + 135, 100, 20).build());
+    }
+
+    private String keyName(int code) {
+        String n = GLFW.glfwGetKeyName(code, 0);
+        return n == null ? "KEY_" + code : n.toUpperCase();
     }
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         renderBackground(ctx, mouseX, mouseY, delta);
 
-        ctx.drawCenteredTextWithShadow(textRenderer, title, width / 2, height / 2 - 70, 0xFFFFFF);
+        ctx.drawCenteredTextWithShadow(textRenderer, "§b§lPerfCore §r§7- Settings",
+                width / 2, height / 2 - 90, 0xFFFFFF);
 
-        // Vẽ label
-        String label = String.format("Expand: %.2f", HitboxState.expandMultiplier);
+        ctx.drawCenteredTextWithShadow(textRenderer,
+                "§7Entity Culling Optimizer", width / 2, height / 2 - 75, 0xAAAAAA);
+
+        String label = String.format("§fCache Scale: §e%.2f", HitboxState.expandMultiplier);
         ctx.drawText(textRenderer, label, sliderX, sliderY - 14, 0xFFFFFF, true);
 
-        // Nền slider
+        // Slider nền
         ctx.fill(sliderX, sliderY, sliderX + sliderW, sliderY + sliderH, 0xFF333333);
 
-        // Phần đã chọn: map 0.1 → 5.0
         double percent = (HitboxState.expandMultiplier - 0.1) / (5.0 - 0.1);
         int fillW = (int) (sliderW * percent);
         ctx.fill(sliderX, sliderY, sliderX + fillW, sliderY + sliderH, 0xFF00AAFF);
 
-        // Hiển thị vạch 1.0 (giữa bình thường)
+        // Mốc 1.00
         int oneW = (int) (((1.0 - 0.1) / (5.0 - 0.1)) * sliderW);
         ctx.fill(sliderX + oneW, sliderY - 2, sliderX + oneW + 1, sliderY + sliderH + 2, 0xFFFFFF00);
 
@@ -98,11 +127,39 @@ public class SettingsScreen extends Screen {
         return super.mouseReleased(mx, my, button);
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (waitingForToggleKey) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                waitingForToggleKey = false;
+                clearAndInit();
+                return true;
+            }
+            Config.data.toggleKey = keyCode;
+            Config.save();
+            waitingForToggleKey = false;
+            clearAndInit();
+            return true;
+        }
+        if (waitingForSettingsKey) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                waitingForSettingsKey = false;
+                clearAndInit();
+                return true;
+            }
+            Config.data.settingsKey = keyCode;
+            Config.save();
+            waitingForSettingsKey = false;
+            clearAndInit();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
     private void updateSlider(double mx) {
         double p = (mx - sliderX) / (double) sliderW;
         p = Math.max(0.0, Math.min(1.0, p));
         double val = 0.1 + p * (5.0 - 0.1);
-        // Round tới 0.05
         val = Math.round(val * 20) / 20.0;
         HitboxState.expandMultiplier = val;
     }
