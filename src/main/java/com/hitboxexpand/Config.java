@@ -9,14 +9,15 @@ import java.nio.file.Path;
 
 public class Config {
     private static final Path PATH = FabricLoader.getInstance()
-        .getConfigDir().resolve("entityculling.json");
+            .getConfigDir().resolve("hitboxexpand.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    // Class Data nằm BÊN TRONG class Config
     public static class Data {
         public boolean enabled = false;
         public double expandMultiplier = 1.0;
         public boolean hideOnDebug = true;
-        public int toggleKey = 75; // GLFW_KEY_K
+        public int toggleKey = 75;   // GLFW_KEY_K
         public int settingsKey = 74; // GLFW_KEY_J
     }
 
@@ -30,7 +31,9 @@ public class Config {
                 Data d = GSON.fromJson(r, Data.class);
                 if (d != null) data = d;
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         HitboxState.enabled = data.enabled;
         HitboxState.expandMultiplier = data.expandMultiplier;
         HitboxState.hideOnDebug = data.hideOnDebug;
@@ -45,13 +48,8 @@ public class Config {
             try (Writer w = new FileWriter(PATH.toFile())) {
                 GSON.toJson(data, w);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
-public static class Data {
-    public boolean enabled = false;
-    public double expandMultiplier = 1.0;
-    public boolean hideOnDebug = true;
-    public int toggleKey = 75;   // K
-    public int settingsKey = 74; // J
 }
